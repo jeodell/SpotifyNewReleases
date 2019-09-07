@@ -137,7 +137,7 @@ class App extends Component {
         {this.state.user.name ?
         <div>
           <h1 className='home-page-header'>
-            {this.state.user.name}'s Playlists
+            {this.state.user.name}'s New Releases
           </h1>
           <ArtistCounter artists={this.state.artists}/>
           <div className='filter'>

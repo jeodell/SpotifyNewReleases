@@ -29,7 +29,7 @@ body {
 }
 
 .home-page-header {
-	font-size: 4em;
+	font-size: 5em;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -70,6 +70,7 @@ body {
 }
 
 .album-content {
+	background-color: rgba(255,255,255,0.3);
 	margin: 5px;
 	display: inline-flex;
 	float: left;
@@ -97,8 +98,8 @@ body {
 }
 
 .album-cover {
-	width: 300px;
-	height: 300px;
+	width: 315px;
+	height: 315px;
 }
 
 .open-in-spotify-btn {
