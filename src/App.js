@@ -1,78 +1,19 @@
-import React, { Component } from 'react';
-import './App.css';
-import queryString from 'query-string';
-
-class ArtistCounter extends Component {
-  render() {
-    let artists = this.props.artists
-    return (
-      <div className='artist-counter'>
-        <h2>{artists.length} followed artists</h2>
-      </div>
-    );
-  }
-}
-
-class NewAlbumsCounter extends Component {
-
-}
-
-class FilterArtist extends Component {
-  render() {
-    return (
-      <div className='filter'>
-        <span>Filter by Artist:</span>
-        <input className='filter-input' type="text" onKeyUp={event => 
-          this.props.onTextChange(event.target.value)}/>
-      </div>
-    );
-  }
-}
-
-
-class FilterDate extends Component {
-  render() {
-    return (
-      <div className='filter'>
-        <span>Filter by Date:</span>
-        <input className='filter-input' type="date" onChange={event =>
-          this.props.onChange(event.target.value)}/>
-      </div>
-    );
-  }
-}
-
-class Albums extends Component {
-  render() {
-    let artist = this.props.artists
-    return (
-      <div className='album-layout'>
-        <h3 className='artist-name'>{artist.name}</h3>
-        <ul>
-          {artist.albums.slice(0,1).map(albums => 
-            <li style={{'list-style': 'none'}}>
-              <span className='album-title'>{albums.name}</span>
-              <br></br>
-              <span>  Release Date: {albums.releaseDate}</span>
-              <br></br>
-              <img src={albums.coverArt.url} className='album-cover'/>
-              <br></br>
-              <a href={albums.url} target='_blank' rel='noopener noreferrer'>
-                <button className='open-in-spotify-button'>Open In Spotify</button>
-              </a>
-            </li>
-          )}
-        </ul>
-      </div>
-    );
-  }
-}
+import React, { Component, useState, useEffect } from 'react'
+import './App.css'
+import axios from 'axios'
+import queryString from 'query-string'
+import Albums from './Albums'
+import ArtistCounter from './ArtistCounter'
+import FilterArtist from './FilterArtist'
+import FilterDate from './FilterDate'
+import Pagination from './Pagination'
 
 class App extends Component {
   constructor() {
     super();
     let today = new Date()
     this.state = {
+      isLoading: false,
       user: {
         name: '',
       },
@@ -95,21 +36,29 @@ class App extends Component {
       return
     
     // fetch user info
+    this.setState({isLoading: true})
     fetch('https://api.spotify.com/v1/me', {
       headers: {'Authorization': 'Bearer ' + accessToken}
     }).then(response => response.json())
     .then(data => this.setState({
       user: {
+        isLoading: false,
         name: data.display_name,
       }
     }))
+    .catch(error => this.setState({
+      error,
+      isLoading: false,
+    }))
     
     // fetch followed artist album info
+    this.setState({isLoading: true})
     fetch(this.state.next, {
       headers: {'Authorization': 'Bearer ' + accessToken}
     }).then(response => response.json())
     .then(artistData => {
       this.setState({
+        isLoading: false,
         next: artistData.artists.next
       })
       let artists = artistData.artists.items  // artist data as json
@@ -151,9 +100,18 @@ class App extends Component {
         }
     })
     }))
+    .catch(error => this.setState({
+      error,
+      isLoading: false,
+    }))
   }
   
   render() {
+    function gotoNextPage() {
+      this.setState({ 
+
+      })
+    }
     console.log(this.state)
     // array of followed artists
     let artistsToRender =
@@ -167,6 +125,12 @@ class App extends Component {
       artists.albums.forEach((albums, i) => {
         artists[i].albums = artists.albums.filter(artists.albums[i].releaseDate > this.state.filterDate)
       }))*/
+
+    if(this.state.isLoading) {
+      return(
+        <p className='loading'>Loading...</p>
+      )
+    }
 
     return (
       <div className="app">
