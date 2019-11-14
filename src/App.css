@@ -10,7 +10,7 @@
 
 body {
 	height: 100%;
-	background-image: url("concert.jpg");
+	background-image: url("https://images.pexels.com/photos/1227648/pexels-photo-1227648.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260");
 	background-position: center;
   background-repeat: no-repeat;
 	background-size: cover;
@@ -64,8 +64,7 @@ body {
 }
 
 .album-layout {
-	display: block;
-	align-items: center;
+	display: inline-flex;
 	margin: 5px;
 }
 

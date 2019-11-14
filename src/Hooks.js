@@ -5,14 +5,18 @@ import axios from 'axios'
 // Uses axios and react hooks to fetch and store data
 export default function Hooks() {
   let today = new Date()
-  const [user, setUser] = useState({
-    name: ''
-  })
-  const [artists, setArtists] = useState( [{
-    name: '',
-    href: '',
-    albums: [],
-  }])
+  const [loading, setLoading] = useState(false)
+  const [user, setUser] = useState(
+    {
+      name: ''
+    })
+  const [artists, setArtists] = useState([
+    {
+      name: '',
+      href: '',
+      albums: [],
+    }
+  ])
   const[filterString, setFilterString] = useState('')
   const[filterDate, setFilterDate] = useState('2019-01-01')
   const[currentDate, setCurrentDate] = useState(today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate())
@@ -43,6 +47,7 @@ export default function Hooks() {
     })
 
     // fetch recent albums of followed artists
+    // CONVERT ALBUMS TO A SET TO GET RID OF DUPLICATES
     let albumDataPromises = artists.map(artist => {   // map over each artist and fetch albums
       let albumDataPromise = axios.get(artist.href + '/albums?offset=0&limit=20&include_groups=album,single', {
         headers: {'Authorization': 'Bearer ' + accessToken}
