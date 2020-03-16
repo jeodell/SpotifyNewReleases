@@ -1,166 +1,224 @@
-import React, { Component, useState, useEffect } from 'react'
-import './App.css'
-import axios from 'axios'
-import queryString from 'query-string'
-import Albums from './Albums'
-import ArtistCounter from './ArtistCounter'
-import FilterArtist from './FilterArtist'
-import FilterDate from './FilterDate'
-import Pagination from './Pagination'
+import React, { Component } from "react";
+import "./App.css";
+import queryString from "query-string";
+import Albums from "./Albums";
+import FilterArtist from "./FilterArtist";
+import FilterDate from "./FilterDate";
 
 class App extends Component {
-  constructor() {
-    super();
-    let today = new Date()
-    this.state = {
-      isLoading: false,
-      user: {
-        name: '',
-      },
-      artists: [{
-        name: '',
-        href: '',
-        albums: [],
-      }],
-      next: 'https://api.spotify.com/v1/me/following?limit=50&type=artist',
-      filterString: '',
-      filterDate: '2018-01-01',
-      currentDate: today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate(),
+    constructor(props) {
+        super(props);
+        let today = new Date();
+        this.state = {
+            isLoading: false,
+            numFollowed: 0,
+            user: {
+                name: ""
+            },
+            artists: [
+                {
+                    name: "",
+                    href: "",
+                    albums: []
+                }
+            ],
+            next:
+                "https://api.spotify.com/v1/me/following?limit=50&type=artist",
+            filterString: "",
+            filterDate:
+                (today.getMonth() - 2 === 0 ? today.getFullYear() - 1 : today.getFullYear()) +
+                "-" +
+                (today.getMonth() - 2 === 0 ? 12 : today.getMonth() - 2) +
+                "-" +
+                today.getDate()
+        };
     }
-  }
 
-  componentDidMount() {
-    let parsedURI = queryString.parse(window.location.search)
-    let accessToken = parsedURI.access_token
-    if(!accessToken)
-      return
-    
-    // fetch user info
-    this.setState({isLoading: true})
-    fetch('https://api.spotify.com/v1/me', {
-      headers: {'Authorization': 'Bearer ' + accessToken}
-    }).then(response => response.json())
-    .then(data => this.setState({
-      user: {
-        isLoading: false,
-        name: data.display_name,
-      }
-    }))
-    .catch(error => this.setState({
-      error,
-      isLoading: false,
-    }))
-    
-    // fetch followed artist album info
-    this.setState({isLoading: true})
-    fetch(this.state.next, {
-      headers: {'Authorization': 'Bearer ' + accessToken}
-    }).then(response => response.json())
-    .then(artistData => {
-      this.setState({
-        isLoading: false,
-        next: artistData.artists.next
-      })
-      let artists = artistData.artists.items  // artist data as json
-      let albumDataPromises = artists.map(artist => {   // map over each artist and fetch albums
-        let responsePromise = fetch(artist.href + '/albums?offset=0&limit=50&include_groups=album,single', {
-          headers: {'Authorization': 'Bearer ' + accessToken}
-        })
-        let albumDataPromise = responsePromise.then(response => response.json())  // album data as json
-        return albumDataPromise
-      })
-      let allAlbumDataPromises = Promise.all(albumDataPromises)
-      let albumsPromise = allAlbumDataPromises.then(albumDatas => {
-        albumDatas.forEach((albumData, i) => {
-          artists[i].albums = albumData.items
-            .map(albumData => ({
-              name: albumData.name.includes('(') ? albumData.name.substring(0, albumData.name.indexOf('(')) : albumData.name,
-              releaseDate: albumData.release_date,
-              url: albumData.external_urls.spotify,
-              coverArt: albumData.images[0],
-            }))
-        })
-        return artists
-      })
-      return albumsPromise
-    })
-    .then(artists => this.setState({
-      artists: artists.sort((a, b) => {
-        let nameA = a.name.toLowerCase()
-        let nameB = b.name.toLowerCase()
-        if (nameA < nameB) //sort string ascending
-         return -1;
-        if (nameA > nameB)
-         return 1;
-        return 0; //default return value (no sorting)
-       }).map(item => {
-        return {
-          name: item.name,
-          albums: item.albums
+    componentDidUpdate(prevProps, prevState) {
+        if (this.state.next !== prevState.next) {
+            this.fetchData();
         }
-    })
-    }))
-    .catch(error => this.setState({
-      error,
-      isLoading: false,
-    }))
-  }
-  
-  render() {
-    function gotoNextPage() {
-      this.setState({ 
-
-      })
-    }
-    console.log(this.state)
-    // array of followed artists
-    let artistsToRender =
-      this.state.user &&    // checks if there is a user that follows at least one artist
-      this.state.artists
-        ? this.state.artists.filter(artists =>
-          artists.name.toLowerCase().includes(this.state.filterString.toLowerCase()))
-        : []
-
-    /*artistToRender = artistToRender.map(artists => 
-      artists.albums.forEach((albums, i) => {
-        artists[i].albums = artists.albums.filter(artists.albums[i].releaseDate > this.state.filterDate)
-      }))*/
-
-    if(this.state.isLoading) {
-      return(
-        <p className='loading'>Loading...</p>
-      )
     }
 
-    return (
-      <div className="app">
-        {this.state.user.name ?
-        <div>
-          <h1 className='home-page-header'>
-            {this.state.user.name}'s New Releases
-          </h1>
-          <ArtistCounter artists={this.state.artists}/>
-          <div className='filter'>
-            <FilterArtist onTextChange={text => {
-                this.setState({filterString: text})
-              }}/>
-            <FilterDate onChange={date =>
-              this.setState({filterDate: date})
-            }/>
-          </div>
-          {artistsToRender.map(artists => 
-            <Albums artists={artists} />
-          )}
-        </div> : <button onClick={() => {
-            window.location = window.location.href.includes('localhost') 
-              ? 'http://localhost:8888/login'
-              : 'https://spotifynewreleasesbackend.herokuapp.com/login' }
-          }
-          className='sign-in-button'>Sign in with Spotify</button>
+    componentDidMount() {
+        this.fetchData();
+    }
+
+    fetchData() {
+        let parsedURI = queryString.parse(window.location.search);
+        let accessToken = parsedURI.access_token;
+        if (!accessToken) return;
+        // fetch user info
+        this.setState({ isLoading: true });
+        fetch("https://api.spotify.com/v1/me", {
+            headers: { Authorization: "Bearer " + accessToken }
+        })
+            .then(response => response.json())
+            .then(data => {
+                this.setState({
+                    user: {
+                        isLoading: false,
+                        name: data.display_name
+                    }
+                });
+            })
+            .catch(error => {
+                this.setState({
+                    error,
+                    isLoading: false
+                });
+                console.log(error);
+            });
+
+        // fetch followed artist album info
+        this.setState({ isLoading: true });
+        if (this.state.next !== null) {
+            fetch(this.state.next, {
+                headers: { Authorization: "Bearer " + accessToken }
+            })
+                .then(response => response.json())
+                .then(artistData => {
+                    this.setState({
+                        isLoading: false,
+                        numFollowed: artistData.artists.total,
+                        next: artistData.artists.next
+                    });
+                    let artists = artistData.artists.items; // artist data as json
+                    let albumDataPromises = artists.map(artist => {
+                        // map over each artist and fetch albums
+                        let responsePromise = fetch(
+                            artist.href +
+                                "/albums?offset=0&limit=50&include_groups=album,single",
+                            {
+                                headers: {
+                                    Authorization: "Bearer " + accessToken
+                                }
+                            }
+                        );
+                        let albumDataPromise = responsePromise.then(response =>
+                            response.json()
+                        ); // album data as json
+                        return albumDataPromise;
+                    });
+                    let allAlbumDataPromises = Promise.all(albumDataPromises);
+                    let albumsPromise = allAlbumDataPromises.then(
+                        albumDatas => {
+                            albumDatas.forEach((albumData, i) => {
+                                artists[i].albums = albumData.items.map(
+                                    albumData => ({
+                                        name: albumData.name.includes("(")
+                                            ? albumData.name.substring(
+                                                  0,
+                                                  albumData.name.indexOf("(")
+                                              )
+                                            : albumData.name,
+                                        releaseDate: albumData.release_date,
+                                        url: albumData.external_urls.spotify,
+                                        coverArt: albumData.images[0]
+                                    })
+                                );
+                            });
+                            return artists;
+                        }
+                    );
+                    return albumsPromise;
+                })
+                .then(fetchedArtists => {
+                    this.setState({
+                        artists: [...this.state.artists, ...fetchedArtists
+                            .map(item => {
+                                return {
+                                    name: item.name,
+                                    albums: item.albums.filter(function(currentAlbum) {
+                                        return currentAlbum.releaseDate >= "2020-01-01"
+                                    })   //TODO STILL NEED TO FILTER OUT DUPLICATES
+                                };
+                            })
+                        ]
+                    })
+                })
+                .catch(error => {
+                    this.setState({
+                        error,
+                        isLoading: false
+                    });
+                    console.log(error);
+                });
+        } else {
+            this.setState({
+                artists: this.state.artists
+                    .sort((a, b) => {
+                        let nameA = a.name.toLowerCase();
+                        let nameB = b.name.toLowerCase();
+                        if (nameA < nameB) return -1;
+                        if (nameA > nameB) return 1;
+                        return 0;
+                    }),
+                isLoading: false
+            })
         }
-      </div>
-    );
-  }
+    }
+
+    render() {
+        // array of followed artists
+        let artistsToRender =
+            this.state.user && this.state.artists // checks if there is a user that follows at least one artist
+                ? this.state.artists.filter(artists =>
+                      artists.name
+                          .toLowerCase()
+                          .includes(this.state.filterString.toLowerCase())
+                  )
+                : [];
+
+        if (this.state.isLoading) {
+            return <p className="loading">Loading...</p>;
+        }
+
+        return (
+            <div className="app">
+                {this.state.user.name ? (
+                    <div>
+                        <h1 className="home-page-header">
+                            {this.state.user.name}'s New Releases (3 Months)
+                        </h1>
+                        <h2 className="artist-counter">
+                            {this.state.numFollowed} followed artists
+                        </h2>
+                        <div className="filter">
+                            <FilterArtist
+                                onTextChange={text => {
+                                    this.setState({ filterString: text });
+                                }}
+                            />
+                            <FilterDate
+                                onChange={date =>
+                                    this.setState({ filterDate: date })
+                                }
+                            />
+                        </div>
+                        <div className="album-layout">
+                            {artistsToRender.map((artists, index) => (
+                                <Albums key={index} artists={artists} filterDate={this.state.filterDate}/>
+                            ))}
+                        </div>
+                    </div>
+                ) : (
+                    <button
+                        onClick={() => {
+                            window.location = window.location.href.includes(
+                                "localhost"
+                            )
+                                ? "http://localhost:8888/login"
+                                : "https://spotifynewreleasesbackend.herokuapp.com/login";
+                        }}
+                        className="sign-in-button"
+                    >
+                        Sign in with Spotify
+                    </button>
+                )}
+            </div>
+        );
+    }
 }
 
 export default App;
