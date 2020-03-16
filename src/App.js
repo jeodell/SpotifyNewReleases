@@ -4,6 +4,7 @@ import queryString from "query-string";
 import Albums from "./Albums";
 import FilterArtist from "./FilterArtist";
 import FilterDate from "./FilterDate";
+import FilterBy from "./FilterBy";
 
 class App extends Component {
     constructor(props) {
@@ -32,7 +33,8 @@ class App extends Component {
                 "-" +
                 (today.getMonth() - 2 === 0 ? 12 : today.getMonth() - 2) +
                 "-" +
-                today.getDate()
+                today.getDate(),
+            filterBy: "artist"
         };
     }
 
@@ -169,7 +171,6 @@ class App extends Component {
     }
 
     render() {
-        console.log(this.state.artists);
         // array of followed artists
         let artistsToRender =
             this.state.user && this.state.artists // checks if there is a user that follows at least one artist
@@ -199,6 +200,11 @@ class App extends Component {
                                 onTextChange={text => {
                                     this.setState({ filterString: text });
                                 }}
+                            />
+                            <FilterBy
+                                onChange={filter =>
+                                    this.setState({ filterBy: filter })
+                                }
                             />
                             <FilterDate
                                 onChange={date =>
