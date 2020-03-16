@@ -1,15 +1,22 @@
 {
   "files": {
-    "main.css": "/SpotifyNewReleases/static/css/main.03214dbb.chunk.css",
-    "main.js": "/SpotifyNewReleases/static/js/main.e1a932ae.chunk.js",
-    "main.js.map": "/SpotifyNewReleases/static/js/main.e1a932ae.chunk.js.map",
-    "runtime~main.js": "/SpotifyNewReleases/static/js/runtime~main.77225dd8.js",
-    "runtime~main.js.map": "/SpotifyNewReleases/static/js/runtime~main.77225dd8.js.map",
-    "static/js/2.21f8fb50.chunk.js": "/SpotifyNewReleases/static/js/2.21f8fb50.chunk.js",
-    "static/js/2.21f8fb50.chunk.js.map": "/SpotifyNewReleases/static/js/2.21f8fb50.chunk.js.map",
+    "main.css": "/SpotifyNewReleases/static/css/main.7f1a48f5.chunk.css",
+    "main.js": "/SpotifyNewReleases/static/js/main.bb1a34c2.chunk.js",
+    "main.js.map": "/SpotifyNewReleases/static/js/main.bb1a34c2.chunk.js.map",
+    "runtime-main.js": "/SpotifyNewReleases/static/js/runtime-main.6a47c71e.js",
+    "runtime-main.js.map": "/SpotifyNewReleases/static/js/runtime-main.6a47c71e.js.map",
+    "static/js/2.0af4d381.chunk.js": "/SpotifyNewReleases/static/js/2.0af4d381.chunk.js",
+    "static/js/2.0af4d381.chunk.js.map": "/SpotifyNewReleases/static/js/2.0af4d381.chunk.js.map",
     "index.html": "/SpotifyNewReleases/index.html",
-    "precache-manifest.cd8614738295322f60b59efeb81d4b73.js": "/SpotifyNewReleases/precache-manifest.cd8614738295322f60b59efeb81d4b73.js",
+    "precache-manifest.ca6115051856e79d4c16fcb44854911b.js": "/SpotifyNewReleases/precache-manifest.ca6115051856e79d4c16fcb44854911b.js",
     "service-worker.js": "/SpotifyNewReleases/service-worker.js",
-    "static/css/main.03214dbb.chunk.css.map": "/SpotifyNewReleases/static/css/main.03214dbb.chunk.css.map"
-  }
+    "static/css/main.7f1a48f5.chunk.css.map": "/SpotifyNewReleases/static/css/main.7f1a48f5.chunk.css.map",
+    "static/js/2.0af4d381.chunk.js.LICENSE.txt": "/SpotifyNewReleases/static/js/2.0af4d381.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.6a47c71e.js",
+    "static/js/2.0af4d381.chunk.js",
+    "static/css/main.7f1a48f5.chunk.css",
+    "static/js/main.bb1a34c2.chunk.js"
+  ]
 }
