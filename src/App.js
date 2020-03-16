@@ -26,7 +26,9 @@ class App extends Component {
                 "https://api.spotify.com/v1/me/following?limit=50&type=artist",
             filterString: "",
             filterDate:
-                (today.getMonth() - 2 === 0 ? today.getFullYear() - 1 : today.getFullYear()) +
+                (today.getMonth() - 2 === 0
+                    ? today.getFullYear() - 1
+                    : today.getFullYear()) +
                 "-" +
                 (today.getMonth() - 2 === 0 ? 12 : today.getMonth() - 2) +
                 "-" +
@@ -125,17 +127,32 @@ class App extends Component {
                 })
                 .then(fetchedArtists => {
                     this.setState({
-                        artists: [...this.state.artists, ...fetchedArtists
-                            .map(item => {
+                        artists: [
+                            ...this.state.artists,
+                            ...fetchedArtists.map(item => {
                                 return {
                                     name: item.name,
-                                    albums: item.albums.filter(function(currentAlbum) {
-                                        return currentAlbum.releaseDate >= "2020-01-01"
-                                    })   //TODO STILL NEED TO FILTER OUT DUPLICATES
+                                    albums: item.albums.filter(function(
+                                        currentAlbum
+                                    ) {
+                                        return (
+                                            currentAlbum.releaseDate >=
+                                            "2020-01-01"
+                                        );
+                                    }) //TODO STILL NEED TO FILTER OUT DUPLICATES
                                 };
                             })
                         ]
-                    })
+                    });
+                    this.setState({
+                        artists: this.state.artists.sort((a, b) => {
+                            let nameA = a.name.toLowerCase();
+                            let nameB = b.name.toLowerCase();
+                            if (nameA < nameB) return -1;
+                            if (nameA > nameB) return 1;
+                            return 0;
+                        })
+                    });
                 })
                 .catch(error => {
                     this.setState({
@@ -146,20 +163,13 @@ class App extends Component {
                 });
         } else {
             this.setState({
-                artists: this.state.artists
-                    .sort((a, b) => {
-                        let nameA = a.name.toLowerCase();
-                        let nameB = b.name.toLowerCase();
-                        if (nameA < nameB) return -1;
-                        if (nameA > nameB) return 1;
-                        return 0;
-                    }),
                 isLoading: false
-            })
+            });
         }
     }
 
     render() {
+        console.log(this.state.artists);
         // array of followed artists
         let artistsToRender =
             this.state.user && this.state.artists // checks if there is a user that follows at least one artist
@@ -198,7 +208,11 @@ class App extends Component {
                         </div>
                         <div className="album-layout">
                             {artistsToRender.map((artists, index) => (
-                                <Albums key={index} artists={artists} filterDate={this.state.filterDate}/>
+                                <Albums
+                                    key={index}
+                                    artists={artists}
+                                    filterDate={this.state.filterDate}
+                                />
                             ))}
                         </div>
                     </div>

@@ -3,11 +3,13 @@ import React from "react";
 export default function FilterDate(props) {
     let today = new Date();
     let filterDate =
-        (today.getMonth() - 2 === 0 ? today.getFullYear() - 1 : today.getFullYear()) +
+        (today.getMonth() - 2 === 0
+            ? today.getFullYear() - 1
+            : today.getFullYear()) +
         "-" +
         (today.getMonth() - 2 === 0 ? 12 : today.getMonth() - 2) +
         "-" +
-        today.getDate()
+        today.getDate();
     return (
         <div className="filter">
             <span>Filter by Date:</span>
