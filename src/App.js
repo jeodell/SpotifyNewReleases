@@ -128,6 +128,7 @@ class App extends Component {
                     return albumsPromise;
                 })
                 .then(fetchedArtists => {
+                    let currentFilterDate = this.state.filterDate
                     this.setState({
                         artists: [
                             ...this.state.artists,
@@ -139,7 +140,7 @@ class App extends Component {
                                     ) {
                                         return (
                                             currentAlbum.releaseDate >=
-                                            "2020-01-01"
+                                            currentFilterDate
                                         );
                                     }) //TODO STILL NEED TO FILTER OUT DUPLICATES
                                 };
@@ -173,7 +174,7 @@ class App extends Component {
     render() {
         // array of followed artists
         let artistsToRender =
-            this.state.user && this.state.artists // checks if there is a user that follows at least one artist
+            this.state.user && this.state.artists
                 ? this.state.artists.filter(artists =>
                       artists.name
                           .toLowerCase()
@@ -190,7 +191,7 @@ class App extends Component {
                 {this.state.user.name ? (
                     <div>
                         <h1 className="home-page-header">
-                            {this.state.user.name}'s New Releases (3 Months)
+                            {this.state.user.name}'s New Releases
                         </h1>
                         <h2 className="artist-counter">
                             {this.state.numFollowed} followed artists

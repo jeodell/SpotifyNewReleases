@@ -2,13 +2,10 @@ import React from "react";
 
 export default function Albums(props) {
     let artist = props.artists;
-    let filterDate = props.filterDate;
-    let albumsFiltered = artist.albums.filter(function(album) {
-        return album.releaseDate >= filterDate;
-    });
+    let albums = artist.albums
     return (
         <>
-            {albumsFiltered.map((albums, index) => (
+            {albums.map((albums, index) => (
                 <li key={index} style={{ listStyle: "none" }}>
                     <div className="album-content">
                         <img
