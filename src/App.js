@@ -14,14 +14,14 @@ class App extends Component {
             isLoading: false,
             numFollowed: 0,
             user: {
-                name: ""
+                name: "",
             },
             artists: [
                 {
                     name: "",
                     href: "",
-                    albums: []
-                }
+                    albums: [],
+                },
             ],
             next:
                 "https://api.spotify.com/v1/me/following?limit=50&type=artist",
@@ -31,10 +31,16 @@ class App extends Component {
                     ? today.getFullYear() - 1
                     : today.getFullYear()) +
                 "-" +
-                (today.getMonth() - 2 === 0 ? 12 : today.getMonth() - 2) +
+                (today.getMonth() - 2 === 0
+                    ? 12
+                    : today.getMonth() - 2 < 10
+                    ? "0" + (today.getMonth() - 2)
+                    : today.getMonth() - 2) +
                 "-" +
-                today.getDate(),
-            filterBy: "artist"
+                (today.getDate() >= 10
+                    ? today.getDate()
+                    : "0" + today.getDate()),
+            filterBy: "artist",
         };
     }
 
@@ -55,21 +61,21 @@ class App extends Component {
         // fetch user info
         this.setState({ isLoading: true });
         fetch("https://api.spotify.com/v1/me", {
-            headers: { Authorization: "Bearer " + accessToken }
+            headers: { Authorization: "Bearer " + accessToken },
         })
-            .then(response => response.json())
-            .then(data => {
+            .then((response) => response.json())
+            .then((data) => {
                 this.setState({
                     user: {
                         isLoading: false,
-                        name: data.display_name
-                    }
+                        name: data.display_name,
+                    },
                 });
             })
-            .catch(error => {
+            .catch((error) => {
                 this.setState({
                     error,
-                    isLoading: false
+                    isLoading: false,
                 });
                 console.log(error);
             });
@@ -78,38 +84,38 @@ class App extends Component {
         this.setState({ isLoading: true });
         if (this.state.next !== null) {
             fetch(this.state.next, {
-                headers: { Authorization: "Bearer " + accessToken }
+                headers: { Authorization: "Bearer " + accessToken },
             })
-                .then(response => response.json())
-                .then(artistData => {
+                .then((response) => response.json())
+                .then((artistData) => {
                     this.setState({
                         isLoading: false,
                         numFollowed: artistData.artists.total,
-                        next: artistData.artists.next
+                        next: artistData.artists.next,
                     });
                     let artists = artistData.artists.items; // artist data as json
-                    let albumDataPromises = artists.map(artist => {
+                    let albumDataPromises = artists.map((artist) => {
                         // map over each artist and fetch albums
                         let responsePromise = fetch(
                             artist.href +
                                 "/albums?offset=0&limit=50&include_groups=album,single",
                             {
                                 headers: {
-                                    Authorization: "Bearer " + accessToken
-                                }
+                                    Authorization: "Bearer " + accessToken,
+                                },
                             }
                         );
-                        let albumDataPromise = responsePromise.then(response =>
-                            response.json()
+                        let albumDataPromise = responsePromise.then(
+                            (response) => response.json()
                         ); // album data as json
                         return albumDataPromise;
                     });
                     let allAlbumDataPromises = Promise.all(albumDataPromises);
                     let albumsPromise = allAlbumDataPromises.then(
-                        albumDatas => {
+                        (albumDatas) => {
                             albumDatas.forEach((albumData, i) => {
                                 artists[i].albums = albumData.items.map(
-                                    albumData => ({
+                                    (albumData) => ({
                                         name: albumData.name.includes("(")
                                             ? albumData.name.substring(
                                                   0,
@@ -118,7 +124,7 @@ class App extends Component {
                                             : albumData.name,
                                         releaseDate: albumData.release_date,
                                         url: albumData.external_urls.spotify,
-                                        coverArt: albumData.images[0]
+                                        coverArt: albumData.images[0],
                                     })
                                 );
                             });
@@ -127,25 +133,25 @@ class App extends Component {
                     );
                     return albumsPromise;
                 })
-                .then(fetchedArtists => {
-                    let currentFilterDate = this.state.filterDate
+                .then((fetchedArtists) => {
+                    let currentFilterDate = this.state.filterDate;
                     this.setState({
                         artists: [
                             ...this.state.artists,
-                            ...fetchedArtists.map(item => {
+                            ...fetchedArtists.map((item) => {
                                 return {
                                     name: item.name,
-                                    albums: item.albums.filter(function(
+                                    albums: item.albums.filter(function (
                                         currentAlbum
                                     ) {
                                         return (
                                             currentAlbum.releaseDate >=
                                             currentFilterDate
                                         );
-                                    }) //TODO STILL NEED TO FILTER OUT DUPLICATES
+                                    }), //TODO STILL NEED TO FILTER OUT DUPLICATES
                                 };
-                            })
-                        ]
+                            }),
+                        ],
                     });
                     this.setState({
                         artists: this.state.artists.sort((a, b) => {
@@ -154,29 +160,28 @@ class App extends Component {
                             if (nameA < nameB) return -1;
                             if (nameA > nameB) return 1;
                             return 0;
-                        })
+                        }),
                     });
                 })
-                .catch(error => {
+                .catch((error) => {
                     this.setState({
                         error,
-                        isLoading: false
+                        isLoading: false,
                     });
                     console.log(error);
                 });
         } else {
             this.setState({
-                isLoading: false
+                isLoading: false,
             });
         }
     }
 
     render() {
-        console.log(this.state)
         // array of followed artists
         let artistsToRender =
             this.state.user && this.state.artists
-                ? this.state.artists.filter(artists =>
+                ? this.state.artists.filter((artists) =>
                       artists.name
                           .toLowerCase()
                           .includes(this.state.filterString.toLowerCase())
@@ -199,17 +204,17 @@ class App extends Component {
                         </h2>
                         <div className="filter">
                             <FilterArtist
-                                onTextChange={text => {
+                                onTextChange={(text) => {
                                     this.setState({ filterString: text });
                                 }}
                             />
                             <FilterBy
-                                onChange={filter =>
+                                onChange={(filter) =>
                                     this.setState({ filterBy: filter })
                                 }
                             />
                             <FilterDate
-                                onChange={date =>
+                                onChange={(date) =>
                                     this.setState({ filterDate: date })
                                 }
                             />
