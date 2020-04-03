@@ -172,6 +172,7 @@ class App extends Component {
     }
 
     render() {
+        console.log(this.state)
         // array of followed artists
         let artistsToRender =
             this.state.user && this.state.artists
