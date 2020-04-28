@@ -1,6 +1,6 @@
 {
   "files": {
-    "main.css": "/SpotifyNewReleases/static/css/main.1476a191.chunk.css",
+    "main.css": "/SpotifyNewReleases/static/css/main.38d2b7c5.chunk.css",
     "main.js": "/SpotifyNewReleases/static/js/main.25ef93e3.chunk.js",
     "main.js.map": "/SpotifyNewReleases/static/js/main.25ef93e3.chunk.js.map",
     "runtime-main.js": "/SpotifyNewReleases/static/js/runtime-main.6a47c71e.js",
@@ -8,15 +8,15 @@
     "static/js/2.0af4d381.chunk.js": "/SpotifyNewReleases/static/js/2.0af4d381.chunk.js",
     "static/js/2.0af4d381.chunk.js.map": "/SpotifyNewReleases/static/js/2.0af4d381.chunk.js.map",
     "index.html": "/SpotifyNewReleases/index.html",
-    "precache-manifest.28ac66e8f89c5f3c85a1e0797b93f81e.js": "/SpotifyNewReleases/precache-manifest.28ac66e8f89c5f3c85a1e0797b93f81e.js",
+    "precache-manifest.1adc5aceffaa54ae7d5a7c5f03944dbc.js": "/SpotifyNewReleases/precache-manifest.1adc5aceffaa54ae7d5a7c5f03944dbc.js",
     "service-worker.js": "/SpotifyNewReleases/service-worker.js",
-    "static/css/main.1476a191.chunk.css.map": "/SpotifyNewReleases/static/css/main.1476a191.chunk.css.map",
+    "static/css/main.38d2b7c5.chunk.css.map": "/SpotifyNewReleases/static/css/main.38d2b7c5.chunk.css.map",
     "static/js/2.0af4d381.chunk.js.LICENSE.txt": "/SpotifyNewReleases/static/js/2.0af4d381.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.6a47c71e.js",
     "static/js/2.0af4d381.chunk.js",
-    "static/css/main.1476a191.chunk.css",
+    "static/css/main.38d2b7c5.chunk.css",
     "static/js/main.25ef93e3.chunk.js"
   ]
 }
