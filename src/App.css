@@ -5,7 +5,7 @@
     font-family: "Red Hat Display";
     margin: 0;
     color: white;
-    text-shadow: 0.07em 0.07em 0 black;
+    text-shadow: 0.03em 0.03em 0 black;
 }
 
 body {
@@ -19,7 +19,7 @@ body {
 
 .loading {
     text-align: center;
-    font-size: 4em;
+    font-size: 4rem;
     font-weight: bold;
     color: #fff;
 }
@@ -29,7 +29,7 @@ body {
 }
 
 .home-page-header {
-    font-size: 5em;
+    font-size: 5rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -37,7 +37,7 @@ body {
 
 .artist-counter {
     color: #fff;
-    font-size: 2em;
+    font-size: 2rem;
     margin: 2px;
     display: inline-block;
     text-align: center;
@@ -45,8 +45,8 @@ body {
 
 .filter {
     color: #fff;
-    font-size: 1.2em;
-    margin: 10px;
+    font-size: 1.2rem;
+    margin: 1%;
     padding-left: 1%;
     padding-right: 1%;
     display: flex;
@@ -54,7 +54,7 @@ body {
 }
 
 .filter span {
-    padding-right: 10px;
+    padding-right: 1%;
 }
 
 .filter-input {
@@ -78,26 +78,24 @@ li {
 }
 
 .description {
-    margin: 10px;
-    text-align: left;
     width: 250px;
+    display: grid;
+    align-self: center;
+    gap: 2rem;
 }
 
 .artist-name {
-    margin-top: 5%;
-    font-size: 1.6em;
+    font-size: 1.5rem;
     font-weight: bold;
 }
 
 .album-title {
-    margin-top: 5%;
-    font-size: 1.25em;
+    font-size: 1.5rem;
     font-weight: normal;
 }
 
 .release-date {
-    margin-top: 5%;
-    font-size: 1em;
+    font-size: 1rem;
     font-weight: normal;
 }
 
@@ -107,7 +105,7 @@ li {
 }
 
 .open-in-spotify-btn {
-    font-size: 1.2em;
+    font-size: 1.2rem;
     color: black;
     text-shadow: none;
     background-color: #1ed761;
@@ -121,10 +119,89 @@ li {
 
 .sign-in-button {
     display: inline-block;
-    font-size: 2em;
+    font-size: 2rem;
     color: black;
     text-shadow: none;
     background-color: #1ed761;
     border-color: black;
     margin: 10px;
+}
+
+@media screen and (max-width: 600px) {
+    .home-page-header {
+        font-size: 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .artist-counter {
+        color: #fff;
+        font-size: 1.5rem;
+        margin: 2px;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .filter {
+        color: #fff;
+        font-size: 1rem;
+        margin: 1%;
+        padding-left: 1%;
+        padding-right: 1%;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .filter span {
+        padding-right: 1%;
+    }
+    
+    .filter-input {
+        background-color: #fff;
+        color: black;
+        text-shadow: none;
+        width: 50%;
+    }
+    
+    .album-content {
+        background-color: rgba(255, 255, 255, 0.3);
+        margin: 5px;
+        display: inline-flex;
+    }
+    
+    .description {
+        width: 175px;
+        display: inline-block;
+    }
+    
+    .artist-name {
+        font-size: 1rem;
+        font-weight: bold;
+        margin: 0;
+    }
+    
+    .album-title {
+        font-size: 1rem;
+        font-weight: normal;
+        margin: 0;
+    }
+    
+    .release-date {
+        font-size: 0.8rem;
+        font-weight: normal;
+        margin: 0;
+    }
+    
+    .album-cover {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .open-in-spotify-btn {
+        font-size: 0.8rem;
+        color: black;
+        text-shadow: none;
+        background-color: #1ed761;
+    }
 }

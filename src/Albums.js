@@ -17,14 +17,11 @@ export default function Albums(props) {
                             alt={albums.name}
                         />
                         <div className="description">
-                            <h1 className="artist-name">{artist.name}</h1>
-                            <br></br>
-                            <h1 className="album-title">{albums.name}</h1>
-                            <br></br>
-                            <h1 className="release-date">
+                            <div className="artist-name">{artist.name}</div>
+                            <div className="album-title">{albums.name}</div>
+                            <div className="release-date">
                                 Release Date: {albums.releaseDate}
-                            </h1>
-                            <br></br>
+                            </div>
                             <a
                                 className="spotify-btn-bg"
                                 href={albums.url}

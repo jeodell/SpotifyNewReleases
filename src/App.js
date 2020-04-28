@@ -208,11 +208,11 @@ class App extends Component {
                                     this.setState({ filterString: text });
                                 }}
                             />
-                            <FilterBy
+                            {/* <FilterBy
                                 onChange={(filter) =>
                                     this.setState({ filterBy: filter })
                                 }
-                            />
+                            /> */}
                             <FilterDate
                                 onChange={(date) =>
                                     this.setState({ filterDate: date })
