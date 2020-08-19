@@ -87,11 +87,15 @@ class App extends Component {
       })
         .then((response) => response.json())
         .then((artistData) => {
-          this.setState({
-            isLoading: false,
-            numFollowed: artistData.artists.total,
-            next: artistData.artists.next,
-          })
+          try {
+            this.setState({
+              isLoading: false,
+              numFollowed: artistData.artists.total,
+              next: artistData.artists.next,
+            })
+          } catch (error) {
+            console.log(error)
+          }
           // artists data
           let artists
           try {
@@ -148,19 +152,24 @@ class App extends Component {
         })
         .then((fetchedArtists) => {
           let currentFilterDate = this.state.filterDate
-          this.setState({
-            artists: [
-              ...this.state.artists,
-              ...fetchedArtists.map((item) => {
-                return {
-                  name: item.name,
-                  albums: item.albums.filter(function (currentAlbum) {
-                    return currentAlbum.releaseDate >= currentFilterDate
-                  }),
-                }
-              }),
-            ],
-          })
+          try {
+            this.setState({
+              artists: [
+                ...this.state.artists,
+                ...fetchedArtists.map((item) => {
+                  return {
+                    name: item.name,
+                    albums: item.albums.filter(function (currentAlbum) {
+                      return currentAlbum.releaseDate >= currentFilterDate
+                    }),
+                  }
+                }),
+              ],
+            })
+          } catch (error) {
+            console.log(error)
+          }
+
           this.setState({
             artists: this.state.artists.sort((a, b) => {
               let nameA = a.name.toLowerCase()
