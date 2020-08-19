@@ -87,29 +87,26 @@ class App extends Component {
       })
         .then((response) => response.json())
         .then((artistData) => {
-          try {
+          if (artistData.artists) {
             this.setState({
               isLoading: false,
               numFollowed: artistData.artists.total,
               next: artistData.artists.next,
             })
-          } catch (error) {
-            console.log(error)
+          } else {
+            this.setState({
+              isLoading: false,
+            })
           }
           // artists data
           let artists
-          try {
+          if (artistData.artists) {
             artists = artistData.artists.items // a.artists is undefined
-          } catch (error) {
-            console.log(error)
-            // return
+          } else {
+            console.log(artistData)
+            return
           }
-          // if (artistData.artists) {
-          //   artists = artistData.artists.items // a.artists is undefined
-          // } else {
-          //   console.log(artistData)
-          //   return
-          // }
+
           // map over each artist and fetch albums
           let albumDataPromises = artists.map((artist) => {
             let responsePromise = fetch(
@@ -152,23 +149,26 @@ class App extends Component {
         })
         .then((fetchedArtists) => {
           let currentFilterDate = this.state.filterDate
-          try {
-            this.setState({
-              artists: [
-                ...this.state.artists,
-                ...fetchedArtists.map((item) => {
+          this.setState({
+            artists: [
+              ...this.state.artists,
+              ...fetchedArtists.map((item) => {
+                if (item.albums) {
                   return {
                     name: item.name,
                     albums: item.albums.filter(function (currentAlbum) {
                       return currentAlbum.releaseDate >= currentFilterDate
                     }),
                   }
-                }),
-              ],
-            })
-          } catch (error) {
-            console.log(error)
-          }
+                } else {
+                  return {
+                    name: item.name,
+                    albums: [],
+                  }
+                }
+              }),
+            ],
+          })
 
           this.setState({
             artists: this.state.artists.sort((a, b) => {
