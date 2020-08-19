@@ -149,27 +149,28 @@ class App extends Component {
         })
         .then((fetchedArtists) => {
           let currentFilterDate = this.state.filterDate
-          this.setState({
-            artists: [
-              ...this.state.artists,
-              ...fetchedArtists.map((item) => {
-                if (item.albums) {
-                  return {
-                    name: item.name,
-                    albums: item.albums.filter(function (currentAlbum) {
-                      return currentAlbum.releaseDate >= currentFilterDate
-                    }),
+          if (this.state.artists) {
+            this.setState({
+              artists: [
+                ...this.state.artists,
+                ...fetchedArtists.map((item) => {
+                  if (item.albums) {
+                    return {
+                      name: item.name,
+                      albums: item.albums.filter(function (currentAlbum) {
+                        return currentAlbum.releaseDate >= currentFilterDate
+                      }),
+                    }
+                  } else {
+                    return {
+                      name: item.name,
+                      albums: [],
+                    }
                   }
-                } else {
-                  return {
-                    name: item.name,
-                    albums: [],
-                  }
-                }
-              }),
-            ],
-          })
-
+                }),
+              ],
+            })
+          }
           this.setState({
             artists: this.state.artists.sort((a, b) => {
               let nameA = a.name.toLowerCase()
