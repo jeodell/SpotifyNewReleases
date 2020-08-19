@@ -10,10 +10,10 @@ import FilterDate from './FilterDate'
 export default function App() {
   let today = new Date()
   const [loading, setLoading] = useState(false)
+  const [numFollowed, setNumFollowed] = useState(0)
   const [user, setUser] = useState({
     name: '',
   })
-  const [numFollowed, setNumFollowed] = useState(0)
   const [artistsArray, setArtistsArray] = useState([{}])
   const [artists, setArtists] = useState([
     {
@@ -22,82 +22,95 @@ export default function App() {
       albums: [],
     },
   ])
+  const [nextPageURL, setNextPageURL] = useState(
+    'https://api.spotify.com/v1/me/following?limit=50&type=artist',
+  )
   const [filterString, setFilterString] = useState('')
   const [filterDate, setFilterDate] = useState('2019-01-01')
   const [currentDate, setCurrentDate] = useState(
-    today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate()
+    today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate(),
   )
-  const [nextPageURL, setNextPageURL] = useState(
-    'https://api.spotify.com/v1/me/following?limit=50&type=artist'
-  )
+  const [pageNumber, setPageNumber] = useState(1)
 
   useEffect(() => {
-    let parsedURI = queryString.parse(window.location.search)
-    let accessToken = parsedURI.access_token
-    if (!accessToken) return
-    setLoading(true)
+    async function fetchData() {
+      let parsedURI = queryString.parse(window.location.search)
+      let accessToken = parsedURI.access_token
+      if (!accessToken) return
+      setLoading(true)
 
-    // fetch user info
-    axios
-      .get('https://api.spotify.com/v1/me', {
+      // Fetch user info
+      const userInfo = await axios.get('https://api.spotify.com/v1/me', {
         headers: { Authorization: 'Bearer ' + accessToken },
       })
-      .then((res) => {
-        setUser({
-          name: res.data.display_name,
-        })
-
-        if (nextPageURL != null) {
-          // fetch followed artists album info
-          axios
-            .get(nextPageURL, {
-              headers: { Authorization: 'Bearer ' + accessToken },
-            })
-            .then((res) => {
-              setNumFollowed(res.data.artists.total)
-              setNextPageURL(res.data.artists.next)
-              console.log(artistsArray)
-
-              setArtistsArray((prevArtistsArray) => {
-                console.log(prevArtistsArray)
-                return [...prevArtistsArray, ...res.data.artists.items]
-              })
-            })
-            .catch((error) => console.log(error))
-        }
-
-        // fetch recent albums of followed artists
-        // CONVERT ALBUMS TO A SET TO GET RID OF DUPLICATES
-        let albumDataPromises = artistsArray.map((artist) => {
-          // map over each artist and fetch albums
-          let albumDataPromise = axios.get(
-            artist.href +
-              '/albums?offset=0&limit=20&include_groups=album,single',
-            {
-              headers: { Authorization: 'Bearer ' + accessToken },
-            }
-          )
-          return albumDataPromise
-        })
-        let allAlbumDataPromises = Promise.all(albumDataPromises)
-        let albumsPromise = allAlbumDataPromises.then((albumDatas) => {
-          albumDatas.forEach((albumData, i) => {
-            artists[i].albums = albumData.items.map((albumData) => ({
-              name: albumData.name.includes('(')
-                ? albumData.name.substring(0, albumData.name.indexOf('('))
-                : albumData.name,
-              releaseDate: albumData.release_date,
-              url: albumData.external_urls.spotify,
-              coverArt: albumData.images[0],
-            }))
-          })
-          return artists
-        })
-        return albumsPromise
+      setUser({
+        name: userInfo.data.display_name,
       })
-      .then((artists) => {
+
+      if (nextPageURL != null) {
+        // fetch followed artists album info
+        const nextPage = await axios.get(nextPageURL, {
+          headers: { Authorization: 'Bearer ' + accessToken },
+        })
+        setNumFollowed(nextPage.data.artists.total)
+        setNextPageURL(nextPage.data.artists.next)
+        setArtistsArray((artistsArray) => [
+          ...artistsArray,
+          ...nextPage.data.artists.items,
+        ])
+      }
+
+      // SO FAR YOU HAVE ALL ARTISTS IN YOUR ARRAY
+      // TO RETURN NO DUPLICATE ALBUMS, USE SETALBUMS(PREVALBUMS => { RETURN [...NEW SET([...PREVALBUMS, NEWALBUMS])]})
+
+      // const allAlbums = await Promise.all(
+      //   artistsArray.map(async (artist) => {
+      //     await fetchAlbums(artist)
+      //   }),
+      // )
+
+      // console.log(allAlbums)
+
+      // async function fetchAlbums(artist) {
+      //   const artistAlbums = await axios.get(
+      //     artist.href +
+      //       '/albums?offset=0&limit=50&include_groups=album,single',
+      //     {
+      //       headers: {
+      //         Authorization: 'Bearer ' + accessToken,
+      //       },
+      //     },
+      //   )
+      //   return artistAlbums
+      // }
+      // fetch recent albums of followed artists
+      // CONVERT ALBUMS TO A SET TO GET RID OF DUPLICATES
+      let albumDataPromises = artistsArray.map((artist) => {
+        // map over each artist and fetch albums
+        let albumDataPromise = axios.get(
+          artist.href + '/albums?offset=0&limit=20&include_groups=album,single',
+          {
+            headers: { Authorization: 'Bearer ' + accessToken },
+          },
+        )
+        return albumDataPromise
+      })
+      let allAlbumDataPromises = Promise.all(albumDataPromises)
+      let albumsPromise = allAlbumDataPromises.then((albumDatas) => {
+        albumDatas.forEach((albumData, i) => {
+          artists[i].albums = albumData.items.map((albumData) => ({
+            name: albumData.name.includes('(')
+              ? albumData.name.substring(0, albumData.name.indexOf('('))
+              : albumData.name,
+            releaseDate: albumData.release_date,
+            url: albumData.external_urls.spotify,
+            coverArt: albumData.images[0],
+          }))
+        })
+      })
+      artistsArray.forEach((artists) => {
         setArtists({
-          artists: artists
+          artists: artistsArray
             .sort((a, b) => {
               let nameA = a.name.toLowerCase()
               let nameB = b.name.toLowerCase()
@@ -113,13 +126,15 @@ export default function App() {
             }),
         })
       })
-  }, [artists, artistsArray, nextPageURL])
+    }
+    fetchData()
+  }, [artistsArray, nextPageURL])
 
   // array of followed artists
   let artistsToRender =
     user && artists // checks if there is a user that follows at least one artist
       ? artists.filter((artists) =>
-          artists.name.toLowerCase().includes(filterString.toLowerCase())
+          artists.name.toLowerCase().includes(filterString.toLowerCase()),
         )
       : []
 
