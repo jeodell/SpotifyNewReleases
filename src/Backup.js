@@ -6,7 +6,6 @@ import FilterArtist from './FilterArtist'
 import FilterDate from './FilterDate'
 import FilterBy from './FilterBy'
 import axios from 'axios'
-import Pagination from '@material-ui/lab/Pagination'
 
 class App extends Component {
   constructor(props) {
@@ -150,26 +149,28 @@ class App extends Component {
         })
         .then((fetchedArtists) => {
           let currentFilterDate = this.state.filterDate
-          this.setState({
-            artists: [
-              ...this.state.artists,
-              ...fetchedArtists.map((item) => {
-                if (item.albums) {
-                  return {
-                    name: item.name,
-                    albums: item.albums.filter(function (currentAlbum) {
-                      return currentAlbum.releaseDate >= currentFilterDate
-                    }),
+          if (this.state.artists) {
+            this.setState({
+              artists: [
+                ...this.state.artists,
+                ...fetchedArtists.map((item) => {
+                  if (item.albums) {
+                    return {
+                      name: item.name,
+                      albums: item.albums.filter(function (currentAlbum) {
+                        return currentAlbum.releaseDate >= currentFilterDate
+                      }),
+                    }
+                  } else {
+                    return {
+                      name: item.name,
+                      albums: [],
+                    }
                   }
-                } else {
-                  return {
-                    name: item.name,
-                    albums: [],
-                  }
-                }
-              }),
-            ],
-          })
+                }),
+              ],
+            })
+          }
           this.setState({
             artists: this.state.artists.sort((a, b) => {
               let nameA = a.name.toLowerCase()
@@ -242,9 +243,6 @@ class App extends Component {
                   filterDate={this.state.filterDate}
                 />
               ))}
-            </div>
-            <div>
-              <Pagination color='primary' />
             </div>
           </div>
         ) : (

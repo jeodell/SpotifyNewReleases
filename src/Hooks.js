@@ -14,7 +14,6 @@ export default function App() {
   const [user, setUser] = useState({
     name: '',
   })
-  const [artistsArray, setArtistsArray] = useState([{}])
   const [artists, setArtists] = useState([
     {
       name: '',
@@ -33,71 +32,63 @@ export default function App() {
   const [pageNumber, setPageNumber] = useState(1)
 
   useEffect(() => {
-    async function fetchData() {
-      let parsedURI = queryString.parse(window.location.search)
-      let accessToken = parsedURI.access_token
-      if (!accessToken) return
-      setLoading(true)
+    fetchData()
+  }, [nextPageURL])
 
-      // Fetch user info
-      const userInfo = await axios.get('https://api.spotify.com/v1/me', {
-        headers: { Authorization: 'Bearer ' + accessToken },
-      })
-      setUser({
-        name: userInfo.data.display_name,
-      })
+  const fetchData = async () => {
+    let parsedURI = queryString.parse(window.location.search)
+    let accessToken = parsedURI.access_token
+    if (!accessToken) return
+    setLoading(true)
 
-      if (nextPageURL != null) {
+    // Fetch user info
+    const userInfo = await axios.get('https://api.spotify.com/v1/me', {
+      headers: { Authorization: 'Bearer ' + accessToken },
+    })
+    setUser({
+      name: userInfo.data.display_name,
+    })
+
+    if (nextPageURL != null) {
+      try {
         // fetch followed artists album info
         const nextPage = await axios.get(nextPageURL, {
           headers: { Authorization: 'Bearer ' + accessToken },
         })
         setNumFollowed(nextPage.data.artists.total)
         setNextPageURL(nextPage.data.artists.next)
-        setArtistsArray((artistsArray) => [
-          ...artistsArray,
-          ...nextPage.data.artists.items,
-        ])
+        setArtists((artists) => [...artists, ...nextPage.data.artists.items])
+      } catch (error) {
+        console.log(error)
       }
+    }
 
-      // SO FAR YOU HAVE ALL ARTISTS IN YOUR ARRAY
-      // TO RETURN NO DUPLICATE ALBUMS, USE SETALBUMS(PREVALBUMS => { RETURN [...NEW SET([...PREVALBUMS, NEWALBUMS])]})
+    if (pageNumber === 1) {
+      artists.shift()
+    }
+    setPageNumber(pageNumber + 1)
 
-      // const allAlbums = await Promise.all(
-      //   artistsArray.map(async (artist) => {
-      //     await fetchAlbums(artist)
-      //   }),
-      // )
-
-      // console.log(allAlbums)
-
-      // async function fetchAlbums(artist) {
-      //   const artistAlbums = await axios.get(
-      //     artist.href +
-      //       '/albums?offset=0&limit=50&include_groups=album,single',
-      //     {
-      //       headers: {
-      //         Authorization: 'Bearer ' + accessToken,
-      //       },
-      //     },
-      //   )
-      //   return artistAlbums
-      // }
-      // fetch recent albums of followed artists
-      // CONVERT ALBUMS TO A SET TO GET RID OF DUPLICATES
-      let albumDataPromises = artistsArray.map((artist) => {
-        // map over each artist and fetch albums
-        let albumDataPromise = axios.get(
-          artist.href + '/albums?offset=0&limit=20&include_groups=album,single',
-          {
-            headers: { Authorization: 'Bearer ' + accessToken },
-          },
-        )
-        return albumDataPromise
-      })
-      let allAlbumDataPromises = Promise.all(albumDataPromises)
-      let albumsPromise = allAlbumDataPromises.then((albumDatas) => {
-        albumDatas.forEach((albumData, i) => {
+    // TO RETURN NO DUPLICATE ALBUMS, USE SETALBUMS(PREVALBUMS => { RETURN [...NEW SET([...PREVALBUMS, NEWALBUMS])]})
+    await Promise.all(
+      artists.map(async (artist) => {
+        try {
+          let artistAlbums = await axios.get(
+            artist.href +
+              '/albums?offset=0&limit=5&include_groups=album,single',
+            {
+              headers: {
+                Authorization: 'Bearer ' + accessToken,
+              },
+            },
+          )
+          return artistAlbums
+        } catch (error) {
+          console.log(error)
+        }
+      }),
+    ).then((albumDatas) => {
+      albumDatas.forEach((albumData, i) => {
+        try {
           artists[i].albums = albumData.items.map((albumData) => ({
             name: albumData.name.includes('(')
               ? albumData.name.substring(0, albumData.name.indexOf('('))
@@ -106,11 +97,16 @@ export default function App() {
             url: albumData.external_urls.spotify,
             coverArt: albumData.images[0],
           }))
-        })
+        } catch (error) {
+          console.log(error)
+        }
       })
-      artistsArray.forEach((artists) => {
+    })
+
+    artists.forEach((artists) => {
+      try {
         setArtists({
-          artists: artistsArray
+          artists: artists
             .sort((a, b) => {
               let nameA = a.name.toLowerCase()
               let nameB = b.name.toLowerCase()
@@ -125,18 +121,22 @@ export default function App() {
               })
             }),
         })
-      })
-    }
-    fetchData()
-  }, [artistsArray, nextPageURL])
+      } catch (error) {
+        console.log(error)
+      }
+    })
+
+    // fetch recent albums of followed artists
+    // CONVERT ALBUMS TO A SET TO GET RID OF DUPLICATES
+  }
 
   // array of followed artists
-  let artistsToRender =
-    user && artists // checks if there is a user that follows at least one artist
-      ? artists.filter((artists) =>
-          artists.name.toLowerCase().includes(filterString.toLowerCase()),
-        )
-      : []
+  // let artistsToRender =
+  //   user && artists // checks if there is a user that follows at least one artist
+  //     ? artists.filter((artists) =>
+  //         artists.name.toLowerCase().includes(filterString.toLowerCase()),
+  //       )
+  //     : []
 
   /*artistToRender = artistToRender.map(artists => 
         artists.albums.forEach((albums, i) => {
@@ -158,9 +158,9 @@ export default function App() {
               />
               <FilterDate onChange={(date) => setFilterDate(date)} />
             </div>
-            {artistsToRender.map((artists) => (
+            {/* {artistsToRender.map((artists) => (
               <Albums artists={artists} />
-            ))}
+            ))} */}
           </div>
         ) : (
           <button
