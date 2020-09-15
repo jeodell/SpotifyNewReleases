@@ -106,20 +106,25 @@ class App extends Component {
 
           // map over each artist and fetch albums
           let albumDataPromises = artists.map((artist) => {
-            let responsePromise = fetch(
-              artist.href +
-                '/albums?offset=0&limit=50&include_groups=album,single',
-              {
-                headers: {
-                  Authorization: 'Bearer ' + accessToken,
+            try {
+              let responsePromise = fetch(
+                artist.href +
+                  '/albums?offset=0&limit=20&include_groups=album,single',
+                {
+                  headers: {
+                    Authorization: 'Bearer ' + accessToken,
+                  },
                 },
-              },
-            )
-            let albumDataPromise = responsePromise.then((response) =>
-              response.json(),
-            )
-            return albumDataPromise
+              )
+              let albumDataPromise = responsePromise.then((response) =>
+                response.json(),
+              )
+              return albumDataPromise
+            } catch (error) {
+              console.log(error)
+            }
           })
+
           let allAlbumDataPromises = Promise.all(albumDataPromises)
           let albumsPromise = allAlbumDataPromises.then((albumDatas) => {
             albumDatas.forEach((albumData, i) => {

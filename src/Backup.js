@@ -1,11 +1,9 @@
-import React, { Component, useState, useEffect } from 'react'
+import React, { Component } from 'react'
 import './App.css'
 import queryString from 'query-string'
 import Albums from './Albums'
 import FilterArtist from './FilterArtist'
 import FilterDate from './FilterDate'
-import FilterBy from './FilterBy'
-import axios from 'axios'
 
 class App extends Component {
   constructor(props) {
@@ -104,43 +102,47 @@ class App extends Component {
             artists = artistData.artists.items // a.artists is undefined
           } else {
             console.log(artistData)
-            return
           }
 
           // map over each artist and fetch albums
           let albumDataPromises = artists.map((artist) => {
-            let responsePromise = fetch(
-              artist.href +
-                '/albums?offset=0&limit=50&include_groups=album,single',
-              {
-                headers: {
-                  Authorization: 'Bearer ' + accessToken,
+            try {
+              let responsePromise = fetch(
+                artist.href +
+                  '/albums?offset=0&limit=20&include_groups=album,single',
+                {
+                  headers: {
+                    Authorization: 'Bearer ' + accessToken,
+                  },
                 },
-              },
-            )
-            let albumDataPromise = responsePromise.then((response) =>
-              response.json(),
-            )
-            return albumDataPromise
+              )
+              let albumDataPromise = responsePromise.then((response) =>
+                response.json(),
+              )
+              return albumDataPromise
+            } catch (error) {
+              console.log(error)
+            }
           })
+
           let allAlbumDataPromises = Promise.all(albumDataPromises)
           let albumsPromise = allAlbumDataPromises.then((albumDatas) => {
             albumDatas.forEach((albumData, i) => {
               if (!albumData.items) {
                 console.log(albumData)
-                return
-              }
-              try {
-                artists[i].albums = albumData.items.map((albumData) => ({
-                  name: albumData.name.includes('(')
-                    ? albumData.name.substring(0, albumData.name.indexOf('('))
-                    : albumData.name, // e.items is undefined
-                  releaseDate: albumData.release_date,
-                  url: albumData.external_urls.spotify,
-                  coverArt: albumData.images[0],
-                }))
-              } catch (error) {
-                console.log(error)
+              } else {
+                try {
+                  artists[i].albums = albumData.items.map((albumData) => ({
+                    name: albumData.name.includes('(')
+                      ? albumData.name.substring(0, albumData.name.indexOf('('))
+                      : albumData.name, // e.items is undefined
+                    releaseDate: albumData.release_date,
+                    url: albumData.external_urls.spotify,
+                    coverArt: albumData.images[0],
+                  }))
+                } catch (error) {
+                  console.log(error)
+                }
               }
             })
             return artists
