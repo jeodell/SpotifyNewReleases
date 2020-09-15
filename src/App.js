@@ -184,10 +184,6 @@ class App extends Component {
           })
         })
         .catch((error) => {
-          this.setState({
-            error,
-            isLoading: false,
-          })
           console.log(error)
         })
     } else {
