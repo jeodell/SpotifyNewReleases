@@ -56,8 +56,8 @@ export default function App() {
           headers: { Authorization: 'Bearer ' + accessToken },
         })
         setNumFollowed(nextPage.data.artists.total)
-        setNextPageURL(nextPage.data.artists.next)
         setArtists((artists) => [...artists, ...nextPage.data.artists.items])
+        setNextPageURL(nextPage.data.artists.next)
       } catch (error) {
         console.log(error)
       }
